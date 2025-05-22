@@ -1,5 +1,5 @@
 <template>
-  <template v-for="(item, index) in props.menuData">
+  <template v-for="(item, index) in props.menuData" >
      <el-menu-item v-if="!item.children" 
      :index="item.meta.path"
      :key="`${props.index}-${item.meta.id}`"
