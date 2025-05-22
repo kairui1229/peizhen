@@ -38,6 +38,7 @@
 <script setup>
 import { reactive, ref } from "vue"
 import { ElMessage } from 'element-plus'
+import { getCode } from '@/api'
 
 const imgUrl = new URL('../../../public/login-head.png', import.meta.url).href
 const loginForm = reactive({
@@ -109,12 +110,17 @@ const countdownChange = () => {
       countdown.time = 60
       flag = false
     }
-    flag = true
   }, 1000)
+  flag = true
+  getCode({ tel: loginForm.userName }).then(({ data }) => {
+     if(data.code === 10000){
+       ElMessage.success('验证码发送成功')
+     }
+  })
 }
 
 const submitForm = () => {
-  
+
 }
 </script>
 
@@ -149,7 +155,8 @@ body,
     margin-bottom: 10px;
   }
 }
-span{
+
+span {
   cursor: pointer;
   color: #409eff;
 }
