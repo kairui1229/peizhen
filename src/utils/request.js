@@ -25,7 +25,13 @@ http.interceptors.request.use(function (config) {
 http.interceptors.response.use(function (response) {
     //对于接口异常的数据，给用户提示
     if(response.data.code === -1){
-      ElMessage.error(response.data.msg)
+      ElMessage.error("接口数据异常，请稍后重试")
+    }
+    if(response.data.code === -2){
+      ElMessage.error("登录已过期，请重新登录")
+      localStorage.removeItem('pz_token')
+      localStorage.removeItem('pz_userInfo')
+      window.location.href = window.location.origin
     }
     return response;
   }, function (error) {

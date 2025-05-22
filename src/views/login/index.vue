@@ -45,8 +45,10 @@
 import { reactive, ref } from "vue"
 import { ElMessage } from 'element-plus'
 import { getCode,userAuthentication,userLogin } from '@/api'
+import { useRouter } from "vue-router"
 
 const imgUrl = new URL('../../../public/login-head.png', import.meta.url).href
+const router = useRouter()
 const loginForm = reactive({
   userName: '',
   passWord: '',
@@ -150,6 +152,9 @@ const submitForm = async(formEl) => {
             ElMessage.success('登录成功')
             localStorage.setItem('pz_token',data.data.token)
             localStorage.setItem('pz_userInfo',JSON.stringify(data.data.userInfo))
+            router.push({ path: '/' })
+          }else{
+            ElMessage.error(data.message)
           }
         })
       }      
