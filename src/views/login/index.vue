@@ -134,7 +134,6 @@ const submitForm = async(formEl) => {
   if(!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!', loginForm)
       //注册页面
       if (formType.value) {
          userAuthentication(loginForm).then(({ data }) =>{
