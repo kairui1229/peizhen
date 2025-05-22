@@ -1,5 +1,25 @@
 <template>
-  <el-button @click="dialogVisible = true">打开</el-button>
+  <PanelHead/>
+  <el-button @click="open(null)" style="margin-bottom: 10px;margin-top: 10px" type="primary">+ 新增</el-button>
+  <el-table :data="tableData.list" style="width: 100%;">
+    <el-table-column prop="id" label="id"/>
+    <el-table-column prop="name" label="昵称"/>
+    <el-table-column prop="permissionName" label="菜单权限" width="700"/>
+    <el-table-column label="操作">
+      <template #default="scope">
+        <el-button type="primary" @click="open(scope.row)">编辑</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+   <el-pagination
+      v-model:current-page="pageData.pageNum"
+      :page-size="pageData.pageSize"
+      :background="false"
+      layout="total, prev, pager, next"
+      :total="tableData.total"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
   <el-dialog
   v-model="dialogVisible"
   :before-close="beforeClose"
@@ -40,8 +60,9 @@
 </template>
 
 <script setup>
-import { ref,reactive,onMounted } from 'vue'
+import { ref,reactive,onMounted, nextTick} from 'vue'
 import {userGetmenu,userSetMenu,menuList} from '@/api'
+import PanelHead from '../../../components/panelHead.vue'
 
 const dialogVisible = ref(false)
 
@@ -51,14 +72,43 @@ const form = reactive({
   id: ''
 })
 
+const tableData = reactive({
+  list: [],
+  total: 0
+})
+
+const open = (row={}) => {
+  dialogVisible.value = true
+  //表单生成是异步的，所以需要用nextTick
+  nextTick(() => {
+    if(row){
+      Object.assign(form,{id:row.id,name:row.name})
+      treeRef.value.setCheckedKeys(row.permissions)
+    }
+  })
+}
+
 const pageData = reactive({
   pageNum: 1,
   pageSize: 10
 })
+
+const handleSizeChange = (val) => {
+  pageData.pageSize = val
+  getListData()
+}
+
+const handleCurrentChange = (val) => {
+  pageData.pageNum = val
+  getListData()
+}
+
 //请求列表数据
 const getListData = async () => {
   const {data:{data}} = await menuList(pageData)
-  console.log(data);
+  const {list,total} = data
+  tableData.list = list
+  tableData.total = total
 }
 
 //树形菜单数据
@@ -71,6 +121,8 @@ onMounted(async() => {
 
 const beforeClose = () => {
   dialogVisible.value = false
+  formRef.value.resetFields()//重置表单
+  treeRef.value.setCheckedKeys([])//重置树形菜单
 }
 
 //默认选中权限
@@ -93,8 +145,9 @@ const confirm = async (formRef) => {
       const permissions = JSON.stringify(treeRef.value.getCheckedKeys())
       userSetMenu({name:form.name,permissions,id:form.id}).then(({data}) => {
         console.log(data);
+        beforeClose()
+        getListData()
       })
-      dialogVisible.value = false
     }else{
       console.log('error submit!', fields)
     }

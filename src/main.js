@@ -5,6 +5,7 @@ import store from './store'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import panelHead from './components/panelHead.vue'
 import App from './App.vue'
 
 router.beforeEach((to, from, next) => {
@@ -27,4 +28,5 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(router)
 app.use(store)
 app.use(ElementPlus)
+app.component('panelHead', panelHead)
 app.mount('#app')
