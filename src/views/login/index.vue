@@ -11,7 +11,13 @@
           {{ formType ? '返回登录' : '立即注册' }}
         </el-link>
       </div>
-      <el-form :model="loginForm" style="max-width: 600px" class="demo-ruleForm" :rules="rules">
+      <el-form 
+      :model="loginForm" 
+      style="max-width: 600px" 
+      class="demo-ruleForm" 
+      :rules="rules"
+      ref="loginFormRef"
+      >
         <el-form-item prop="userName">
           <el-input v-model="loginForm.userName" placeholder="手机号" prefix-icon="User" />
         </el-form-item>
@@ -26,7 +32,7 @@
           </el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :style="{ width: '100%' }" @click="submitForm">
+          <el-button type="primary" :style="{ width: '100%' }" @click="submitForm(loginFormRef)">
             {{ !formType ? '登录' : '注册' }}
           </el-button>
         </el-form-item>
@@ -38,7 +44,7 @@
 <script setup>
 import { reactive, ref } from "vue"
 import { ElMessage } from 'element-plus'
-import { getCode } from '@/api'
+import { getCode,userAuthentication,userLogin } from '@/api'
 
 const imgUrl = new URL('../../../public/login-head.png', import.meta.url).href
 const loginForm = reactive({
@@ -102,13 +108,14 @@ const countdownChange = () => {
       type: 'error',
     })
   }
-  setInterval(() => {
+  const time = setInterval(() => {
     countdown.time--
     countdown.validText = `剩余${countdown.time}s`
     if (countdown.time <= 0) {
       countdown.validText = '重新获取'
       countdown.time = 60
       flag = false
+      clearInterval(time)
     }
   }, 1000)
   flag = true
@@ -119,8 +126,37 @@ const countdownChange = () => {
   })
 }
 
-const submitForm = () => {
-
+//提交表单
+const loginFormRef = ref(null)
+const submitForm = async(formEl) => {
+  if(!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log('submit!', loginForm)
+      //注册页面
+      if (formType.value) {
+         userAuthentication(loginForm).then(({ data }) =>{
+           if(data.code === 10000){
+             ElMessage.success('注册成功,请登录')      
+             formType.value = 0
+           }else{
+             ElMessage.error(data.message)
+           }
+         })
+      }else{
+        //登录页面
+        userLogin(loginForm).then(({ data }) =>{
+          if(data.code === 10000){
+            ElMessage.success('登录成功')
+            localStorage.setItem('pz_token',data.data.token)
+            localStorage.setItem('pz_userInfo',JSON.stringify(data.data.userInfo))
+          }
+        })
+      }      
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
 }
 </script>
 

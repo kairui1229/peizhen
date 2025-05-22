@@ -13,7 +13,7 @@ http.interceptors.request.use(function (config) {
     const whiteUrl = ['/get/code','/user/authentication','/login']
     // 判断是否有token，并且不在白名单中
     if(token && !whiteUrl.includes(config.url)){
-      config.headers['X-token'] = token
+      config.headers['x-token'] = token
     }
     return config;
   }, function (error) {
