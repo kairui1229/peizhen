@@ -7,12 +7,25 @@ import Group from '@/views/auth/group/index.vue'
 import Staff from '@/views/vppz/staff/index.vue'
 import Order from '@/views/vppz/order/index.vue'
 
+const localData = localStorage.getItem('pz')
+
 const routes = [
   { 
     path: '/',
     component: Layout,
     name: 'main',
-    redirect: '/dashboard',
+    redirect: to => {
+      if (localData) {
+        const child = JSON.parse(localData).menu.routerList[0].children
+        if(child){
+          return child[0].meta.path
+        }else{
+          return JSON.parse(localData).menu.routerList[0].meta.path
+        }
+      }else{
+        return '/login'
+      }
+    },
     children: [
       // {
       //   path: 'dashboard',

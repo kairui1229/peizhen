@@ -4,7 +4,8 @@ const state = localData ? localData.menu :{
   isCollapse: false,
   // ✅ 优先从本地恢复
   selectMenu: JSON.parse(localStorage.getItem('selectMenu')) || [],
-  routerList: []
+  routerList: [],
+  menuActive: '1-1',
 }
 
 const mutations = {
@@ -43,7 +44,9 @@ const mutations = {
     state.routerList = payload
   },
 
-
+  updateMenuActive(state, payload) {
+    state.menuActive = payload
+  }
 }
 
 export default {

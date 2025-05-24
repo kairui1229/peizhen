@@ -4,8 +4,7 @@
   active-text-color="#ffd04b" 
   background-color="#545c64" 
   class="aside-container" 
-  :default-active="$route.path"
-  :default-openeds="openedMenus"
+  :default-active="active"
   :router="true"
   text-color="#fff" 
   @open="handleOpen" 
@@ -23,6 +22,8 @@ import { reactive, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import TreeMenu from './treeMenu.vue';
+
+const active = computed(() => store.state.menu.menuActive)
 
 const route = useRoute()
 const router = useRouter()
