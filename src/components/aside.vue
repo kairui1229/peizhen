@@ -13,7 +13,7 @@
   :collapse-transition="false"
   >
     <p class="logo-lg">{{ !isCollapse ? '欧阳陪诊' : '欧阳'}}</p>
-    <TreeMenu :menuData="menuData"/>
+    <TreeMenu :menuData="menuData" :index="1"/>
   </el-menu>
 </template>
 
