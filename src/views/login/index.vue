@@ -42,13 +42,16 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue"
+import { reactive, ref,computed } from "vue"
 import { ElMessage } from 'element-plus'
-import { getCode,userAuthentication,userLogin } from '@/api'
+import { getCode,userAuthentication,userLogin,menuPermissions } from '@/api'
 import { useRouter } from "vue-router"
+import { useStore } from "vuex"
 
 const imgUrl = new URL('../../../public/login-head.png', import.meta.url).href
 const router = useRouter()
+const store = useStore()
+
 const loginForm = reactive({
   userName: '',
   passWord: '',
@@ -128,6 +131,8 @@ const countdownChange = () => {
   })
 }
 
+const routerList = computed(() =>store.state.menu.routerList)
+
 //提交表单
 const loginFormRef = ref(null)
 const submitForm = async(formEl) => {
@@ -151,7 +156,12 @@ const submitForm = async(formEl) => {
             ElMessage.success('登录成功')
             localStorage.setItem('pz_token',data.data.token)
             localStorage.setItem('pz_userInfo',JSON.stringify(data.data.userInfo))
-            router.push({ path: '/' })
+            menuPermissions().then(({ data }) =>{
+              store.commit('dynamicMenu',data.data)
+              console.log(routerList.value);
+              
+              //router.push({ path: '/' })
+            })
           }else{
             ElMessage.error(data.message)
           }
