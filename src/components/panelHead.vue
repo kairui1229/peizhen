@@ -8,12 +8,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  route: {
-    name: String,
-    describe: String
-  }
-})
+const props = defineProps(['route'])
 </script>
 
 <style lang="less" scoped>
