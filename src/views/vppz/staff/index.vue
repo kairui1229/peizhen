@@ -22,7 +22,7 @@
       <el-input v-model="form.name" placeholder="请输入昵称"></el-input>
     </el-form-item>
     <el-form-item label="头像" prop="avatar">
-      <el-button v-if="!form.avatar" type="primary">点击上传</el-button>
+      <el-button v-if="!form.avatar" type="primary" @click="dialogImgVisible = true">点击上传</el-button>
       <el-image v-else :src="form.avatar" style="width: 100px; height: 100px;"></el-image>
     </el-form-item>
     <el-form-item label="性别" prop="sex">
@@ -39,8 +39,8 @@
     </el-form-item>
     <el-form-item label="是否生效" prop="active">
       <el-radio-group v-model="form.active">
-        <el-radio :label="0">失效</el-radio>
-        <el-radio :label="1">生效</el-radio>
+        <el-radio :value="0">失效</el-radio>
+        <el-radio :value="1">生效</el-radio>
       </el-radio-group>
     </el-form-item>
   </el-form>
@@ -50,14 +50,54 @@
     </div>
   </template>
   </el-dialog>
+
+  <el-dialog
+  v-model="dialogImgVisible"
+  :before-close="beforeClose"
+  title="选择头像"
+  width="680px"
+  >
+  <div class="image-list">
+    <div 
+    v-for="(item,index) in fileList" 
+    :key="item.name" 
+    class="img-box" 
+    @click="selectIndex = index"
+    >
+      <div v-if="selectIndex === index" class="select">
+        <el-icon coloe="#fff"><Check /></el-icon>
+      </div>
+      <el-image style="width: 148x; height: 148px;" :src="item.url"></el-image>
+    </div>
+  </div>
+  <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogImgVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmImage">确认</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref,onMounted } from 'vue'
+import {photoList,companion} from '@/api'
+import { Check } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
+onMounted(() => {
+  photoList().then(({data}) => {
+    fileList.value = data.data
+  })
+})
+
+const fileList = ref([])
+const selectIndex = ref(0)
 const dialogVisible = ref(false)
+const dialogImgVisible = ref(false)
 const beforeClose = () => {
   dialogVisible.value = false
+  formRef.value.resetFields()
 }
 const formRef = ref(null)
 const form = reactive({
@@ -70,11 +110,31 @@ const form = reactive({
   "sex": ""
 })
 const rules = reactive({
-  
+  name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
+  avatar: [{ required: true, message: '请选择头像'}],
+  sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
+  mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' }]
 })
 
 const confirm = async (formRef) => {
-
+  if (!formRef) return
+  await formRef.validate((valid) => {
+    if (valid) {
+      companion(form).then(({data}) => {
+        if(data.code === 10000){
+          ElMessage.success('创建成功')
+          beforeClose()
+        }else{
+          ElMessage.error(data.message)
+        }
+      })
+    }
+  })
+}
+const confirmImage = () => {
+  form.avatar = fileList.value[selectIndex.value].url
+  dialogImgVisible.value = false
 }
 
 const open = () => {
