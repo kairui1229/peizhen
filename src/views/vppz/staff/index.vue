@@ -50,6 +50,47 @@
     </div>
   </template>
   </el-dialog>
+  <el-table :data="tableData.list" style="width: 100%;" @selection-change="handleSelectionChange">
+    <el-table-column type="selection" width="55" />
+    <el-table-column prop="id" label="ID" />
+    <el-table-column prop="name" label="昵称" />
+    <el-table-column prop="avatar" label="头像" >
+      <template #default="scope">
+        <el-image :src="scope.row.avatar" style="width: 50px; height: 50px;"></el-image>
+      </template>
+    </el-table-column>
+    <el-table-column prop="sex" label="性别"  >
+      <template #default="scope">
+        {{ scope.row.sex === 1 ? '男' : '女' }}
+      </template>
+    </el-table-column>
+    <el-table-column prop="mobile" label="手机号" />
+    <el-table-column prop="active" label="状态"  >
+      <template #default="scope">
+        <el-tag :type="scope.row.active === 1 ? 'success' : 'danger'">
+          {{ scope.row.active === 1 ? '生效' : '失效' }}
+        </el-tag>
+      </template>
+    </el-table-column>
+     <el-table-column label="创建时间">
+      <template #default="scope">
+        <div class="flex-box">
+          <el-icon>
+            <Clock />
+          </el-icon>
+          <span style="margin-left: 10px;">{{ scope.row.create_time }}</span>
+        </div>
+      </template>
+    </el-table-column>
+     <el-table-column label="操作">
+      <template #default="scope">
+        <el-button type="primary" @click="open(scope.row)">编辑</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <el-pagination v-model:current-page="pageData.pageNum" :page-size="pageData.pageSize" :background="false"
+    layout="total, prev, pager, next" :total="tableData.total" @size-change="handleSizeChange"
+    @current-change="handleCurrentChange" />
 
   <el-dialog
   v-model="dialogImgVisible"
@@ -81,14 +122,16 @@
 
 <script setup>
 import { reactive, ref,onMounted } from 'vue'
-import {photoList,companion} from '@/api'
+import {photoList,companion,companionList} from '@/api'
 import { Check } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
 
 onMounted(() => {
   photoList().then(({data}) => {
     fileList.value = data.data
   })
+  getListData()
 })
 
 const fileList = ref([])
@@ -112,7 +155,7 @@ const form = reactive({
 const rules = reactive({
   name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
   avatar: [{ required: true, message: '请选择头像'}],
-  sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  sex: [{ required: true, message: '请选择性别'}],
   age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
   mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' }]
 })
@@ -125,6 +168,7 @@ const confirm = async (formRef) => {
         if(data.code === 10000){
           ElMessage.success('创建成功')
           beforeClose()
+          getListData()
         }else{
           ElMessage.error(data.message)
         }
@@ -139,6 +183,41 @@ const confirmImage = () => {
 
 const open = () => {
   dialogVisible.value = true
+}
+
+const pageData = reactive({
+  pageNum: 1,
+  pageSize: 10
+})
+
+const tableData = reactive({
+  list: [],
+  total: 0
+})
+
+const getListData = () => {
+  companionList(pageData).then(({data}) => {
+    const {list,total} = data.data
+    list.forEach(el => {
+    el.create_time = dayjs(el.create_time).format('YYYY-MM-DD')
+     })
+    tableData.list = list
+    tableData.total = total
+  })
+}
+
+const handleSizeChange = (val) => {
+  pageData.pageSize = val
+  getListData()
+}
+
+const handleCurrentChange = (val) => {
+  pageData.pageNum = val
+  getListData()
+}
+
+const handleSelectionChange= () => {
+
 }
 </script>
 
