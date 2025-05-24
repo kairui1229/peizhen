@@ -31,6 +31,7 @@ http.interceptors.response.use(function (response) {
       ElMessage.error("登录已过期，请重新登录")
       localStorage.removeItem('pz_token')
       localStorage.removeItem('pz_userInfo')
+      localStorage.removeItem('pz')
       window.location.href = window.location.origin
     }
     return response;

@@ -8,6 +8,15 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import panelHead from './components/panelHead.vue'
 import App from './App.vue'
 
+//刷新后动态路由添加
+const localData = localStorage.getItem('pz')
+if (localData) {
+  store.commit('dynamicMenu',JSON.parse(localData).menu.routerList)
+  store.state.menu.routerList.forEach(item => {
+    router.addRoute('main',item)
+  })
+}
+
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('pz_token')
   if (to.path !== '/login' && !token) {

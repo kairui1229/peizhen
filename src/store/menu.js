@@ -1,4 +1,6 @@
-const state = {
+const localData = JSON.parse(localStorage.getItem('pz'))
+
+const state = localData ? localData.menu :{
   isCollapse: false,
   // ✅ 优先从本地恢复
   selectMenu: JSON.parse(localStorage.getItem('selectMenu')) || [],
@@ -26,11 +28,11 @@ const mutations = {
 
   dynamicMenu(state, payload) {
     //通过glob导入文件
-    const moudles = import.meta.glob('../views/**/**/*.vue')
+    const moudles = import.meta.glob('/src/views/**/**/*.vue')
     function routerSet(router){
        router.forEach(route => {
          if(!route.children){
-           const url = `../views${route.meta.path}/index.vue`
+           const url = `/src/views${route.meta.path}/index.vue`
            route.component = moudles[url]
          }else{
            routerSet(route.children)

@@ -1,5 +1,5 @@
 <template>
-  <panelHead/>
+  <panelHead :route="route"/>
   <el-button @click="open(null)" style="margin-bottom: 10px;margin-top: 10px" type="primary">+ 新增</el-button>
   <el-table :data="tableData.list" style="width: 100%;">
     <el-table-column prop="id" label="id"/>
@@ -62,7 +62,9 @@
 <script setup>
 import { ref,reactive,onMounted, nextTick} from 'vue'
 import {userGetmenu,userSetMenu,menuList} from '@/api'
+import {useRoute} from 'vue-router'
 
+const route = useRoute()
 const dialogVisible = ref(false)
 
 const form = reactive({

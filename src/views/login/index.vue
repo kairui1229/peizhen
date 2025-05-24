@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { reactive, ref,computed } from "vue"
+import { reactive, ref,computed,toRaw } from "vue"
 import { ElMessage } from 'element-plus'
 import { getCode,userAuthentication,userLogin,menuPermissions } from '@/api'
 import { useRouter } from "vue-router"
@@ -131,10 +131,9 @@ const countdownChange = () => {
   })
 }
 
-const routerList = computed(() =>store.state.menu.routerList)
-
 //提交表单
 const loginFormRef = ref(null)
+const routerList = computed(() =>store.state.menu.routerList)
 const submitForm = async(formEl) => {
   if(!formEl) return
   await formEl.validate((valid, fields) => {
@@ -158,9 +157,10 @@ const submitForm = async(formEl) => {
             localStorage.setItem('pz_userInfo',JSON.stringify(data.data.userInfo))
             menuPermissions().then(({ data }) =>{
               store.commit('dynamicMenu',data.data)
-              console.log(routerList.value);
-              
-              //router.push({ path: '/' })
+              toRaw(routerList.value).forEach(item => {             
+                router.addRoute('main',item)
+              })
+              router.push('/')
             })
           }else{
             ElMessage.error(data.message)

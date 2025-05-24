@@ -26,7 +26,8 @@ import TreeMenu from './treeMenu.vue';
 
 const route = useRoute()
 const router = useRouter()
-const menuData = reactive(router.options.routes[0].children);
+//const menuData = reactive(router.options.routes[0].children);
+const menuData = computed(() => store.state.menu.routerList)
 const store = useStore()
 const isCollapse = computed(() => store.state.menu.isCollapse)
 
