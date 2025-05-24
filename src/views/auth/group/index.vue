@@ -1,5 +1,5 @@
 <template>
-  <PanelHead/>
+  <panelHead/>
   <el-button @click="open(null)" style="margin-bottom: 10px;margin-top: 10px" type="primary">+ 新增</el-button>
   <el-table :data="tableData.list" style="width: 100%;">
     <el-table-column prop="id" label="id"/>
@@ -62,7 +62,6 @@
 <script setup>
 import { ref,reactive,onMounted, nextTick} from 'vue'
 import {userGetmenu,userSetMenu,menuList} from '@/api'
-import PanelHead from '../../../components/panelHead.vue'
 
 const dialogVisible = ref(false)
 
@@ -77,13 +76,17 @@ const tableData = reactive({
   total: 0
 })
 
-const open = (row={}) => {
+const open = (row = null) => {
   dialogVisible.value = true
-  //表单生成是异步的，所以需要用nextTick
   nextTick(() => {
-    if(row){
-      Object.assign(form,{id:row.id,name:row.name})
-      treeRef.value.setCheckedKeys(row.permissions)
+    if (row) {
+      form.id = row.id || ''
+      form.name = row.name || ''
+      treeRef.value.setCheckedKeys(row.permissions || [])
+    } else {
+      form.id = ''
+      form.name = ''
+      treeRef.value.setCheckedKeys([])
     }
   })
 }
@@ -139,7 +142,7 @@ const rules = {
 
 const valid = ref(true)
 const confirm = async (formRef) => {
-  if(!valid)return
+  if(!valid.value)return
   await formRef.validate((valid, fields) => {
     if(valid) {
       const permissions = JSON.stringify(treeRef.value.getCheckedKeys())
