@@ -1,6 +1,19 @@
 <template>
   <div class="btns">
     <el-button @click="open(null)" style="margin-bottom: 10px;margin-top: 10px" type="primary">+ 新增</el-button>
+     <el-popconfirm
+    confirm-button-text="确定"
+    cancel-button-text="取消"
+    width="220"
+    :icon="InfoFilled"
+    icon-color="#626AEF"
+    title="是否确认删除？"
+    @confirm="confirmEvent"
+  >
+    <template #reference>
+      <el-button type="danger">删除</el-button>
+    </template>
+  </el-popconfirm>
   </div>
   <el-dialog
   v-model="dialogVisible"
@@ -121,9 +134,9 @@
 </template>
 
 <script setup>
-import { reactive, ref,onMounted } from 'vue'
-import {photoList,companion,companionList} from '@/api'
-import { Check } from '@element-plus/icons-vue'
+import { reactive, ref,onMounted, nextTick} from 'vue'
+import {photoList,companion,companionList,deleteCompanion} from '@/api'
+import { Check, InfoFilled} from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 
@@ -181,8 +194,13 @@ const confirmImage = () => {
   dialogImgVisible.value = false
 }
 
-const open = () => {
+const open = (row = {}) => {
   dialogVisible.value = true
+  nextTick(() => {
+    if (row) {
+      Object.assign(form, row)
+    }
+  })
 }
 
 const pageData = reactive({
@@ -216,8 +234,25 @@ const handleCurrentChange = (val) => {
   getListData()
 }
 
-const handleSelectionChange= () => {
+const selectTableData = ref([])
+const handleSelectionChange= (val) => {
+  selectTableData.value = val.map(el =>({id: el.id }))
+}
 
+const confirmEvent = () => {
+  if(!selectTableData.value.length){
+    ElMessage.warning('请至少选择一个数据')
+    return
+  }else{
+    deleteCompanion({id: selectTableData.value}).then(({data}) => {
+      if(data.code === 10000){
+        ElMessage.success('删除成功')
+        getListData()
+      }else{
+        ElMessage.error(data.message)
+      }
+    })
+  }
 }
 </script>
 
