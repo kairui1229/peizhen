@@ -1,4 +1,5 @@
 <template>
+  <panelHead :route="route"></panelHead>
   <div class="btns">
     <el-button @click="open(null)" style="margin-bottom: 10px;margin-top: 10px" type="primary">+ 新增</el-button>
      <el-popconfirm
@@ -139,6 +140,9 @@ import {photoList,companion,companionList,deleteCompanion} from '@/api'
 import { Check, InfoFilled} from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import {useRoute} from 'vue-router'
+
+const route = useRoute()
 
 onMounted(() => {
   photoList().then(({data}) => {
