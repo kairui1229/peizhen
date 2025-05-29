@@ -74,3 +74,8 @@ export const deleteCompanion = (data) => {
 export const adminOrder = (params) => {
     return request.get('/admin/order',{params})
 }
+
+//订单状态扭转
+export const orderStatus = (data) => {
+    return request.post('/update/order',data)
+}

@@ -48,7 +48,7 @@
         :icon="InfoFilled"
         icon-color="#626AEF" 
         title="是否确认完成？" 
-        @confirm="confirmEvent"
+        @confirm="confirmEvent(scope.row.out_trade_no)"
         >
           <template #reference>
             <el-button type="primary" link>服务完成</el-button>
@@ -65,7 +65,7 @@
 
 <script setup>
 import { reactive, onMounted } from 'vue'
-import { adminOrder } from '@/api'
+import { adminOrder,orderStatus } from '@/api'
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import { InfoFilled} from '@element-plus/icons-vue'
@@ -86,8 +86,8 @@ const tableData = reactive({
   total: 0
 })
 
-const getListData = () => {
-  adminOrder(pageData).then(({ data: { data } }) => {
+const getListData = (id={}) => {
+  adminOrder({...pageData, ...id}).then(({ data: { data } }) => {
     const { list, total } = data
     tableData.list = list
     tableData.total = total
@@ -104,8 +104,12 @@ const statusMap = (key) => {
   return obj[key] || 'danger'
 }
 
-const confirmEvent = () => {
-  console.log('确认');
+const confirmEvent = (id) => {
+  orderStatus({id}).then(({data}) => {
+    if(data.code === 10000){
+      getListData()
+    }
+  })
 }
 
 const handleSizeChange = (val) => {
@@ -122,7 +126,8 @@ const searchForm = reactive({
   out_trade_no: '',
 })
 const searchEvent = () => {
-  
+  searchForm.out_trade_no = searchForm.out_trade_no.trim()
+  getListData(searchForm)
 }
 </script>
 
